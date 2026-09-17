@@ -1,0 +1,43 @@
+{
+  "name": "pi-prompt-lens",
+  "version": "0.1.0",
+  "description": "A quiet prompt review sidecar for pi: highlights prompt gaps and suggests an actionable rewrite after the agent finishes answering.",
+  "keywords": [
+    "pi",
+    "pi-extension",
+    "pi-package",
+    "prompt-engineering",
+    "prompt-review"
+  ],
+  "license": "MIT",
+  "author": "xtnntn",
+  "files": [
+    "prompt-lens.ts",
+    "src"
+  ],
+  "type": "module",
+  "main": "prompt-lens.ts",
+  "scripts": {
+    "check": "tsc --noEmit",
+    "test": "vitest run",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-ai": "^0.84.1",
+    "@earendil-works/pi-coding-agent": "^0.84.1",
+    "@earendil-works/pi-tui": "^0.84.1",
+    "@types/node": "^26.1.1",
+    "oxfmt": "0.42.0",
+    "oxlint": "1.63.0",
+    "typescript": "^5.7.0",
+    "vitest": "^4.1.10"
+  },
+  "pi": {
+    "extensions": [
+      "./prompt-lens.ts"
+    ]
+  }
+}
