@@ -69,7 +69,11 @@ async function openModelPicker(ctx: ExtensionContext, config: PromptLensConfig):
   updateStatusBar(ctx, config)
 }
 
-async function openSettingsMenu(ctx: ExtensionContext, config: PromptLensConfig): Promise<void> {
+async function openSettingsMenu(
+  ctx: ExtensionContext,
+  config: PromptLensConfig,
+  deps: { disable(ctx: ExtensionContext): void }
+): Promise<void> {
   await ctx.ui.custom((tui, theme, _kb, done) => {
     const modelSubmenu = (current: string, submenuDone: (value?: string) => void) => {
       const options = getModelOptions(ctx)
@@ -97,8 +101,7 @@ async function openSettingsMenu(ctx: ExtensionContext, config: PromptLensConfig)
         label: 'Prompt Review',
         currentValue: config.enabled ? 'on' : 'off',
         values: ['on', 'off'],
-        description:
-          'Review prompts in the background and append improvement advice after responses'
+        description: 'Review prompts in the background and show improvement advice above editor'
       },
       {
         id: 'model',
@@ -119,6 +122,7 @@ async function openSettingsMenu(ctx: ExtensionContext, config: PromptLensConfig)
       (id, newValue) => {
         if (id === 'enabled') {
           config.enabled = newValue === 'on'
+          if (!config.enabled) deps.disable(ctx)
           saveConfig(config)
           updateStatusBar(ctx, config)
         } else if (id === 'model') {
@@ -143,7 +147,10 @@ async function openSettingsMenu(ctx: ExtensionContext, config: PromptLensConfig)
   })
 }
 
-export function registerSettings(pi: ExtensionAPI, _deps: { cancelPending(): void }): void {
+export function registerSettings(
+  pi: ExtensionAPI,
+  deps: { disable(ctx: ExtensionContext): void }
+): void {
   pi.registerCommand('lens', {
     description:
       'Prompt review settings: /lens opens settings menu; /lens [on|off|model] sets options directly',
@@ -160,7 +167,7 @@ export function registerSettings(pi: ExtensionAPI, _deps: { cancelPending(): voi
 
       if (!sub) {
         if (ctx.hasUI && ctx.mode === 'tui') {
-          await openSettingsMenu(ctx, config)
+          await openSettingsMenu(ctx, config, deps)
         } else {
           notifyStatus()
         }
@@ -176,6 +183,7 @@ export function registerSettings(pi: ExtensionAPI, _deps: { cancelPending(): voi
           break
         case 'off':
           config.enabled = false
+          deps.disable(ctx)
           saveConfig(config)
           updateStatusBar(ctx, config)
           notifyStatus()

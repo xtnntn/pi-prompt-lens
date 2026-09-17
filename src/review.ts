@@ -1,12 +1,12 @@
 /**
- * Review orchestrator:
+ * Review orchestrator for Prompt Lens:
  * 1. Catches eligible user prompts in pi.on('input').
- * 2. Launches side-review completion immediately in the background.
- * 3. Waits until pi.on('agent_settled') to append the review card.
- * 4. Silently drops pending reviews if the session was aborted, switched, or errored.
+ * 2. Clears any previous floating review widget.
+ * 3. Launches parallel side review in the background.
+ * 4. Shows the result via ctx.ui.setWidget() as a fixed floating panel above the editor.
  */
 
-import type { ExtensionAPI } from '@earendil-works/pi-coding-agent'
+import type { ExtensionAPI, ExtensionContext } from '@earendil-works/pi-coding-agent'
 import { loadConfig } from './config.ts'
 import {
   shouldReviewPrompt,
@@ -15,16 +15,17 @@ import {
   type ReviewDecision
 } from './core.ts'
 import { resolveModel, runPromptReview } from './llm.ts'
-import { ENTRY_TYPE, type PromptLensEntryData } from './renderer.ts'
+import { showPromptLensWidget, hidePromptLensWidget } from './renderer.ts'
 
 interface PendingReview {
   id: string
-  prompt: string
   abort: AbortController
   promise: Promise<ReviewDecision | undefined>
 }
 
-export function registerReviewOrchestrator(pi: ExtensionAPI): { cancelPending(): void } {
+export function registerReviewOrchestrator(pi: ExtensionAPI): {
+  disable(ctx: ExtensionContext): void
+} {
   let pending: PendingReview | null = null
 
   const cancelPending = () => {
@@ -40,13 +41,15 @@ export function registerReviewOrchestrator(pi: ExtensionAPI): { cancelPending():
     // Only run on user inputs submitted while idle (skip steer and followUp mid-stream)
     if (event.source !== 'interactive' || event.streamingBehavior !== undefined) return
 
+    // Every new input clears previous review panel so UI stays clean
+    hidePromptLensWidget(ctx)
+    cancelPending()
+
     const config = loadConfig()
     if (!config.enabled) return
 
     const prompt = event.text.trim()
     if (!shouldReviewPrompt(prompt)) return
-
-    cancelPending()
 
     const abort = new AbortController()
     const id = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
@@ -68,7 +71,6 @@ export function registerReviewOrchestrator(pi: ExtensionAPI): { cancelPending():
 
     pending = {
       id,
-      prompt,
       abort,
       promise: reviewTask()
     }
@@ -83,23 +85,31 @@ export function registerReviewOrchestrator(pi: ExtensionAPI): { cancelPending():
 
     try {
       const decision = await active.promise
-      if (!decision || decision.mode !== 'review') return
+      if (!decision || decision.mode !== 'review') {
+        hidePromptLensWidget(ctx)
+        return
+      }
       if (active.abort.signal.aborted) return
 
-      pi.appendEntry<PromptLensEntryData>(ENTRY_TYPE, {
-        findings: decision.report.findings,
-        rewrite: decision.report.rewrite,
-        reviewedAt: Date.now()
-      })
+      // Present the review as a fixed widget above the editor
+      showPromptLensWidget(ctx, decision.report)
     } catch {
-      // Non-blocking: side reviews never disturb the agent or throw to users
+      hidePromptLensWidget(ctx)
     }
   })
 
-  const resetState = () => cancelPending()
-  pi.on('session_start', resetState)
-  pi.on('session_shutdown', resetState)
-  pi.on('session_tree', resetState)
+  const clearWidget = (_event: unknown, ctx: ExtensionContext) => {
+    cancelPending()
+    hidePromptLensWidget(ctx)
+  }
 
-  return { cancelPending }
+  pi.on('session_start', clearWidget)
+  pi.on('session_shutdown', clearWidget)
+  pi.on('session_tree', clearWidget)
+
+  return {
+    disable(ctx: ExtensionContext) {
+      clearWidget(null, ctx)
+    }
+  }
 }
