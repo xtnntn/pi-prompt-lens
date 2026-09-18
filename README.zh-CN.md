@@ -2,12 +2,12 @@
 
 <p align="center">
   <strong>在 AI 回答后，复盘你的提示词。</strong><br />
-  一个 <a href="https://pi.dev">pi</a> 扩展：在后台分析你的 prompt，并在回答结束后安静追加建议卡片——指出缺失上下文、模糊范围与改进建议，且绝不污染上下文。
+  一个 <a href="https://pi.dev">pi</a> 扩展：在后台分析你的 prompt，并在回答结束后安静展示建议组件——指出缺失上下文、模糊范围与改进建议，且绝不污染上下文。
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/pi-prompt-lens"><img src="https://img.shields.io/npm/v/pi-prompt-lens" alt="npm" /></a>
-  <a href="LICENSE"><img src="https://img.shields.io/npm/l/pi-prompt-lens" alt="license" /></a>
+  <a href="package.json"><img src="https://img.shields.io/github/package-json/v/xtnntn/pi-prompt-lens?label=npm&logo=npm" alt="npm" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/xtnntn/pi-prompt-lens" alt="license" /></a>
 </p>
 
 <p align="center">
@@ -20,11 +20,11 @@
 
 在向 AI 编程助手交代任务时，提示词中遗漏的关键范围、上下文或验收标准往往会导致多轮无效沟通。
 
-**Pi Prompt Lens** 会在 agent 执行任务的同时在后台并行分析你的 prompt。当回答结束后，它会在回复下方以独立卡片的形式列出 1 到 3 处影响执行的关键缺陷，并给出保留原意的改进写法。
+**Pi Prompt Lens** 会在 agent 执行任务的同时在后台并行分析你的 prompt。当回答结束后，它会在编辑器上方以独立组件的形式列出 1 到 3 处影响执行的关键缺陷，并给出保留原意的改进写法。
 
 - **绝不阻塞**：你的消息立即发送给 agent；复盘分析在后台并行完成。
-- **绝不污染上下文**：复盘卡片作为终端自定义条目展示，**绝不回传给模型**，不增加后续对话 token 成本。
-- **没有无谓打扰**：如果你的 prompt 已经足够具体、清晰且有边界，将不会展示卡片。
+- **绝不污染上下文**：复盘组件只存在于终端界面中，**绝不回传给模型**，不增加后续对话 token 成本。
+- **没有无谓打扰**：如果你的 prompt 已经足够具体、清晰且有边界，将不会展示组件。
 - **语言自适应**：分析与改写会自动采用你的 prompt 所用的主语言。
 
 ## 安装
@@ -55,7 +55,7 @@ ln -s "$(pwd)/pi-prompt-lens" ~/.pi/agent/extensions/pi-prompt-lens
    ```
 
 2. agent 照常开始工作。
-3. 当回答完成后，下方会出现复盘卡片：
+3. 当回答完成后，编辑器上方会出现复盘组件：
 
    ```text
    🔎 Prompt Lens
@@ -94,7 +94,7 @@ ln -s "$(pwd)/pi-prompt-lens" ~/.pi/agent/extensions/pi-prompt-lens
 
 1. **独立评估**：只分析用户当前的 prompt，绝不读取主 AI 的回答，也不抓取过往会话历史。
 2. **不浪费执行时间**：复盘与任务并行处理，仅在回答结束后落卡。
-3. **保持上下文纯净**：卡片只存在于终端界面中，后续提问时不会带入模型上下文。
+3. **保持上下文纯净**：组件只存在于终端界面中，后续提问时不会带入模型上下文。
 
 ## 本地开发
 

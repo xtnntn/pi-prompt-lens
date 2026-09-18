@@ -91,8 +91,6 @@ export function shouldReviewPrompt(text: string): boolean {
   }
 
   const nonWhitespace = trimmed.replace(/\s+/g, '')
-  if (nonWhitespace.length === 0) return false
-
   const letters = nonWhitespace.match(/\p{L}|\p{N}/gu)?.length ?? 0
   const naturalRatio = letters / nonWhitespace.length
   if (naturalRatio < 0.45) {

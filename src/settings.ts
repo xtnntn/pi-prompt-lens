@@ -16,9 +16,9 @@ import {
 import { loadConfig, saveConfig } from './config.ts'
 import type { PromptLensConfig } from './core.ts'
 
-export const STATUS_KEY = 'prompt-lens'
+const STATUS_KEY = 'prompt-lens'
 
-export function updateStatusBar(ctx: ExtensionContext, config: PromptLensConfig): void {
+function updateStatusBar(ctx: ExtensionContext, config: PromptLensConfig): void {
   if (!ctx.hasUI) return
   if (!config.enabled) {
     ctx.ui.setStatus(STATUS_KEY, '🔎 lens off')

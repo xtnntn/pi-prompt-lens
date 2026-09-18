@@ -4,7 +4,6 @@
  * and avoiding accidental tool executions.
  */
 
-import { completeSimple } from '@earendil-works/pi-ai/compat'
 import type { Context, Message, SimpleStreamOptions } from '@earendil-works/pi-ai/compat'
 import type { ExtensionContext } from '@earendil-works/pi-coding-agent'
 import type { PromptLensConfig } from './core.ts'
@@ -54,44 +53,26 @@ export async function runPromptReview(
     messages: [userMessage]
   }
 
+  const provider = ctx.modelRegistry.getProvider(model.provider)
+  if (!provider) {
+    return undefined
+  }
+
   const options: SimpleStreamOptions = {
     apiKey: auth.apiKey,
     headers: auth.headers,
+    env: auth.env,
     signal
   }
+  const requestModel = auth.baseUrl ? { ...model, baseUrl: auth.baseUrl } : model
+  const response = await provider.streamSimple(requestModel, context, options).result()
 
-  // Attempt provider's streamSimple if supported by registry
-  const registry = ctx.modelRegistry as unknown as {
-    getProvider?: (id: string) => {
-      streamSimple?: (
-        m: ResolvedModel,
-        c: Context,
-        o?: SimpleStreamOptions
-      ) => { result: () => Promise<{ content: Array<{ type: string; text?: string }> }> }
-    }
-  }
-
-  if (typeof registry.getProvider === 'function') {
-    const provider = registry.getProvider(model.provider)
-    if (typeof provider?.streamSimple === 'function') {
-      const response = await provider.streamSimple(model, context, options).result()
-      return response.content
-        .filter(
-          (c): c is { type: 'text'; text: string } =>
-            c.type === 'text' && typeof c.text === 'string'
-        )
-        .map((c) => c.text)
-        .join('\n')
-        .trim()
-    }
-  }
-
-  const response = await completeSimple(model, context, options)
   return response.content
     .filter(
-      (c): c is { type: 'text'; text: string } => c.type === 'text' && typeof c.text === 'string'
+      (content): content is { type: 'text'; text: string } =>
+        content.type === 'text' && typeof content.text === 'string'
     )
-    .map((c) => c.text)
+    .map((content) => content.text)
     .join('\n')
     .trim()
 }

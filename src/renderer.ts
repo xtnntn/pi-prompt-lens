@@ -8,7 +8,7 @@ import type { ExtensionContext } from '@earendil-works/pi-coding-agent'
 import { Container, Text } from '@earendil-works/pi-tui'
 import type { PromptFinding, PromptLensReport } from './core.ts'
 
-export const WIDGET_KEY = 'prompt-lens'
+const WIDGET_KEY = 'prompt-lens'
 
 function renderFindings(container: Container, findings: PromptFinding[], theme: any): void {
   if (findings.length === 0) return

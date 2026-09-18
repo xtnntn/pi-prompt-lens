@@ -18,7 +18,6 @@ import { resolveModel, runPromptReview } from './llm.ts'
 import { showPromptLensWidget, hidePromptLensWidget } from './renderer.ts'
 
 interface PendingReview {
-  id: string
   abort: AbortController
   promise: Promise<ReviewDecision | undefined>
 }
@@ -52,7 +51,6 @@ export function registerReviewOrchestrator(pi: ExtensionAPI): {
     if (!shouldReviewPrompt(prompt)) return
 
     const abort = new AbortController()
-    const id = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
 
     const reviewTask = async (): Promise<ReviewDecision | undefined> => {
       try {
@@ -70,7 +68,6 @@ export function registerReviewOrchestrator(pi: ExtensionAPI): {
     }
 
     pending = {
-      id,
       abort,
       promise: reviewTask()
     }

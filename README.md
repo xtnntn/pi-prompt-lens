@@ -2,12 +2,12 @@
 
 <p align="center">
   <strong>Review how you asked, after the agent answers.</strong><br />
-  A <a href="https://pi.dev">pi</a> extension that analyzes your prompt in the background and appends actionable feedback—highlighting missing context, ambiguities, and concrete rewrites without polluting your conversation context.
+  A <a href="https://pi.dev">pi</a> extension that analyzes your prompt in the background and displays actionable feedback—highlighting missing context, ambiguities, and concrete rewrites without polluting your conversation context.
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/pi-prompt-lens"><img src="https://img.shields.io/npm/v/pi-prompt-lens" alt="npm" /></a>
-  <a href="LICENSE"><img src="https://img.shields.io/npm/l/pi-prompt-lens" alt="license" /></a>
+  <a href="package.json"><img src="https://img.shields.io/github/package-json/v/xtnntn/pi-prompt-lens?label=npm&logo=npm" alt="npm" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/xtnntn/pi-prompt-lens" alt="license" /></a>
 </p>
 
 <p align="center">
@@ -20,11 +20,11 @@
 
 When asking coding assistants to solve problems, small omissions in prompt scope, context, or validation criteria often lead to wasted round-trips.
 
-**Pi Prompt Lens** watches your prompt while the agent works. Once the response finishes settling, it quietly appends a **Prompt Lens** card highlighting 1–3 concrete gaps in your request and provides a structured rewrite.
+**Pi Prompt Lens** watches your prompt while the agent works. Once the response finishes settling, it displays a **Prompt Lens** widget above the editor with 1–3 concrete gaps in your request and a structured rewrite.
 
 - **Zero Blocking**: Your message is sent to the agent immediately. The review evaluates concurrently.
-- **Context-Isolated**: Review cards are saved as custom transcript entries; they are **never sent back to the LLM**, avoiding context bloat.
-- **Noise-Free**: If your prompt was already clear, specific, and bounded, no card is shown.
+- **Context-Isolated**: Review widgets exist only in the terminal UI; they are **never sent back to the LLM**, avoiding context bloat.
+- **Noise-Free**: If your prompt was already clear, specific, and bounded, no widget is shown.
 - **Language Aware**: Explanations and rewrites match the language you typed in.
 
 ## Installation
@@ -55,7 +55,7 @@ ln -s "$(pwd)/pi-prompt-lens" ~/.pi/agent/extensions/pi-prompt-lens
    ```
 
 2. The agent executes your task immediately.
-3. When the agent finishes, a card appears underneath the response:
+3. When the agent finishes, a widget appears above the editor:
 
    ```text
    🔎 Prompt Lens
@@ -94,7 +94,7 @@ Settings persist in `~/.pi/agent/prompt-lens.json`.
 
 1. **Independent Evaluation**: Reviews inspect only your prompt—never the assistant's output and never past conversation history.
 2. **Never Waste Agent Time**: The review runs parallel to the agent and settles after the response is rendered.
-3. **Keep Chat History Clean**: Review cards live strictly in the terminal UI and do not cost tokens in subsequent turns.
+3. **Keep Chat History Clean**: Review widgets live strictly in the terminal UI and do not cost tokens in subsequent turns.
 
 ## Development
 
